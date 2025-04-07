@@ -9,6 +9,10 @@ function MyBookings() {
   const navigate = useNavigate();
 
   const fetchBookings = useCallback(async () => {
+    if (!token) {
+      console.log('No token found in localStorage');
+      return;
+    }
     try {
       console.log('Fetching bookings with token:', token);
       const response = await axios.get('https://movie-ticket-booking-backend-60e5.onrender.com/bookings/my-bookings', {
@@ -17,20 +21,21 @@ function MyBookings() {
       console.log('Bookings response:', response.data);
       setBookings(response.data);
     } catch (error) {
-      console.error('Error fetching bookings:', error.response?.data || error.message);
+      console.error('Error fetching bookings:', error.response?.status, error.response?.data || error.message);
     }
-  }, [token]); // 'token' as dependency
+  }, [token]);
 
   useEffect(() => {
     if (token) fetchBookings();
-  }, [token, fetchBookings]); // Include both dependencies
+  }, [token, fetchBookings]);
 
   const handleCancel = async (id) => {
     try {
+      console.log('Cancelling booking ID:', id);
       await axios.delete(`https://movie-ticket-booking-backend-60e5.onrender.com/bookings/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchBookings(); // Refresh after cancel
+      fetchBookings();
     } catch (error) {
       alert('Cancel failed: ' + (error.response?.data?.message || 'Unknown error'));
     }
