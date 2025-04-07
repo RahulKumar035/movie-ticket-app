@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Typography, List, ListItem, ListItemText, Button, Box } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -8,27 +8,29 @@ function MyBookings() {
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:8080/bookings/my-bookings', {
+      console.log('Fetching bookings with token:', token);
+      const response = await axios.get('https://movie-ticket-booking-backend-60e5.onrender.com/bookings/my-bookings', {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log('Bookings response:', response.data);
       setBookings(response.data);
     } catch (error) {
-      console.error('Error fetching bookings:', error);
+      console.error('Error fetching bookings:', error.response?.data || error.message);
     }
-  };
+  }, [token]); // 'token' as dependency
 
   useEffect(() => {
     if (token) fetchBookings();
-  }, [token, fetchBookings]); // Added fetchBookings to dependencies
+  }, [token, fetchBookings]); // Include both dependencies
 
   const handleCancel = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/bookings/${id}`, {
+      await axios.delete(`https://movie-ticket-booking-backend-60e5.onrender.com/bookings/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchBookings();
+      fetchBookings(); // Refresh after cancel
     } catch (error) {
       alert('Cancel failed: ' + (error.response?.data?.message || 'Unknown error'));
     }
