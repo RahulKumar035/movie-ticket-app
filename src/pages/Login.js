@@ -11,17 +11,18 @@ function Login() {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('https://movie-ticket-booking-backend-60e5.onrender.com/auth/signin', {
-                username,
-                password
-            });
-            localStorage.setItem('token', response.data.token);
-            alert('Login successful! Token: ' + response.data.token);
-            navigate('/');
+          const response = await axios.post('https://movie-ticket-booking-backend-60e5.onrender.com/auth/signin', {
+            username,
+            password,
+          });
+          localStorage.setItem('token', response.data.token);
+          console.log('Login token:', response.data.token); // Debug in console
+          alert('Login successful!');
+          navigate('/');
         } catch (error) {
-            alert('Login failed: ' + (error.response?.data || 'Unknown error'));
+          alert('Login failed: ' + (error.response?.data || 'Unknown error'));
         }
-    };
+      };
 
     return (
         <Container maxWidth="sm" sx={{ mt: 8 }}>

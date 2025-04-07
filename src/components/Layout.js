@@ -17,8 +17,8 @@ function Layout({ children }) {
     navigate('/login');
   };
 
-  const token = localStorage.getItem('token'); // Check on every render
-  console.log('Layout token:', token); // Debug
+  const token = localStorage.getItem('token');
+  console.log('Layout token:', token);
 
   const menuItems = [
     { text: 'Home', icon: <HomeIcon />, path: '/' },
@@ -30,9 +30,13 @@ function Layout({ children }) {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)' }}>
-      <AppBar position="fixed" sx={{ bgcolor: '#1e3c72' }}>
+      <AppBar position="fixed" sx={{ bgcolor: '#1e3c72', zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
-          <IconButton color="inherit" onClick={() => setDrawerOpen(true)} sx={{ mr: { xs: 1, sm: 2 } }}>
+          <IconButton
+            color="inherit"
+            onClick={() => setDrawerOpen(true)}
+            sx={{ display: { xs: 'block', sm: 'none' }, mr: 1 }} // Show menu icon only on mobile
+          >
             <MenuIcon />
           </IconButton>
           <Typography
@@ -43,24 +47,40 @@ function Layout({ children }) {
           >
             MovieMagic
           </Typography>
-          {token ? (
-            <Button color="inherit" onClick={handleLogout} sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
+          <Box sx={{ display: { xs: 'none', sm: 'flex' } }}> {/* Hide buttons on mobile */}
+            {token ? (
+              <Button color="inherit" onClick={handleLogout} sx={{ fontSize: { sm: '1rem' } }}>
+                Logout
+              </Button>
+            ) : (
+              <>
+                <Button color="inherit" component={Link} to="/login" sx={{ fontSize: { sm: '1rem' }, mr: 1 }}>
+                  Login
+                </Button>
+                <Button color="inherit" component={Link} to="/signup" sx={{ fontSize: { sm: '1rem' } }}>
+                  Sign Up
+                </Button>
+              </>
+            )}
+          </Box>
+          {token && (
+            <Button
+              color="inherit"
+              onClick={handleLogout}
+              sx={{ display: { xs: 'block', sm: 'none' }, fontSize: '0.8rem' }} // Logout on mobile
+            >
               Logout
             </Button>
-          ) : (
-            <>
-              <Button color="inherit" component={Link} to="/login" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' }, mr: 1 }}>
-                Login
-              </Button>
-              <Button color="inherit" component={Link} to="/signup" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
-                Sign Up
-              </Button>
-            </>
           )}
         </Toolbar>
       </AppBar>
-      <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-        <Box sx={{ width: { xs: 200, sm: 250 }, bgcolor: '#fff', height: '100%' }}>
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        sx={{ display: { xs: 'block', sm: 'none' } }} // Drawer only on mobile
+      >
+        <Box sx={{ width: '70vw', maxWidth: 250, bgcolor: '#fff', height: '100%' }}>
           <List>
             {menuItems.map((item) => (
               <ListItem button key={item.text} component={Link} to={item.path} onClick={() => setDrawerOpen(false)}>
@@ -68,10 +88,20 @@ function Layout({ children }) {
                 <ListItemText primary={item.text} />
               </ListItem>
             ))}
+            {!token && (
+              <>
+                <ListItem button component={Link} to="/login" onClick={() => setDrawerOpen(false)}>
+                  <ListItemText primary="Login" />
+                </ListItem>
+                <ListItem button component={Link} to="/signup" onClick={() => setDrawerOpen(false)}>
+                  <ListItemText primary="Sign Up" />
+                </ListItem>
+              </>
+            )}
           </List>
         </Box>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, sm: 3 }, mt: 8 }}>
+      <Box component="main" sx={{ flexGrow: 1, p: { xs: 1, sm: 3 }, mt: { xs: 7, sm: 8 } }}>
         {children}
       </Box>
     </Box>
